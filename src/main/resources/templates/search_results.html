@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Результаты поиска | Найдено</title>
+  <style>
+    :root {
+      --bg-cream: #fff1b5;
+      --soft-blue: #c1dbe8;
+      --wine: #501924;
+      --pistachio: #c9daa8;
+      --white: #ffffff;
+      --chocolate: #3e2723;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #fdfaf4;
+      color: var(--chocolate);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .search-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: var(--bg-cream);
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 0 15px 40px rgba(62, 39, 35, 0.1);
+    }
+
+    h1 {
+      color: var(--wine);
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .query-info {
+      background: var(--white);
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: inline-block;
+      border-left: 4px solid var(--pistachio);
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+
+    .back-link {
+      display: inline-block;
+      text-decoration: none;
+      color: var(--wine);
+      font-weight: bold;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+
+    /* Список результатов */
+    .results-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .result-item {
+      background: var(--white);
+      margin-bottom: 15px;
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid var(--soft-blue);
+      transition: 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-item:hover {
+      border-color: var(--chocolate);
+      transform: translateX(10px);
+      box-shadow: -5px 5px 15px rgba(62, 39, 35, 0.05);
+    }
+
+    .product-info a {
+      color: var(--chocolate);
+      text-decoration: none;
+      font-size: 1.25em;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .product-info a:hover { color: var(--wine); }
+
+    .rating-box {
+      background: var(--pistachio);
+      color: var(--chocolate);
+      padding: 5px 15px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+
+    .empty-results {
+      text-align: center;
+      padding: 40px;
+      background: var(--white);
+      border-radius: 20px;
+      border: 2px dashed var(--soft-blue);
+    }
+
+    strong { color: var(--wine); }
+  </style>
+</head>
+<body>
+
+<div class="search-container">
+  <a th:href="@{/}" class="back-link">&#8592; На главную</a>
+
+  <h1>Результаты поиска</h1>
+  <div class="query-info">
+    Вы искали: <strong>«<span th:text="${searchQuery}">Запрос</span>»</strong>
+  </div>
+
+  <div th:if="${searchResults.isEmpty()}" class="empty-results">
+    <p style="font-size: 1.2em;">🔍 Простите, но по этому запросу ничего не нашлось.</p>
+    <p>Попробуйте изменить формулировку или проверьте категорию.</p>
+  </div>
+
+  <div th:unless="${searchResults.isEmpty()}">
+    <h2 style="font-size: 1.1em; opacity: 0.8; margin-bottom: 20px;">
+      Найдено совпадений: <span th:text="${searchResults.size()}">0</span>
+    </h2>
+
+    <ul class="results-list">
+      <li th:each="product : ${searchResults}" class="result-item">
+        <div class="product-info">
+          <a th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}">
+            Название продукта
+          </a>
+          <small style="color: #888;" th:text="${product.category?.name}">Категория</small>
+        </div>
+
+        <div th:if="${product.averageRating != null}" class="rating-box">
+          ⭐ <span th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">4.5</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

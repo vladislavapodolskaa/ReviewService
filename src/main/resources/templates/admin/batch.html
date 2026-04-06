@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Пакетная загрузка - Админ</title>
+  <style>
+    :root {
+      --bg-cream: #fff1b5;
+      --soft-blue: #c1dbe8;
+      --wine: #501924;
+      --chocolate: #3e2723;
+      --pistachio: #c9daa8;
+      --white: #ffffff;
+    }
+    body {
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background-color: #fcfaf2;
+      color: var(--wine);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .admin-container {
+      width: 100%;
+      max-width: 800px;
+      background-color: var(--bg-cream);
+      padding: 40px;
+      border-radius: 25px;
+      box-shadow: 0 15px 35px rgba(80, 25, 36, 0.15);
+      border: 2px solid var(--wine);
+    }
+    h1 { color: var(--chocolate); text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+
+    .alert {
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      text-align: center;
+      border: 2px solid;
+    }
+    .alert-success { background-color: var(--pistachio); color: var(--wine); border-color: var(--wine); }
+    .alert-error { background-color: #f8d7da; color: #8b0000; border-color: #8b0000; }
+
+    .upload-card {
+      background: var(--white);
+      padding: 30px;
+      border-radius: 20px;
+      border: 2px dashed var(--wine);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .file-input { margin: 20px 0; font-size: 1em; }
+
+    .btn-submit {
+      background-color: var(--wine);
+      color: var(--bg-cream);
+      border: none;
+      padding: 15px 40px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1.1em;
+    }
+    .btn-submit:hover { background-color: var(--chocolate); transform: translateY(-2px); }
+
+    .instructions {
+      background-color: rgba(255, 255, 255, 0.5);
+      padding: 20px;
+      border-radius: 15px;
+      font-size: 0.9em;
+      line-height: 1.6;
+      color: var(--chocolate);
+    }
+    .instructions code { background: var(--soft-blue); padding: 2px 5px; border-radius: 4px; }
+
+    .footer-actions {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--wine);
+    }
+    .back-link { color: var(--wine); text-decoration: none; font-weight: bold; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="admin-container">
+  <h1>Пакетная загрузка отзывов</h1>
+
+  <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+  <div class="upload-card">
+    <p>Выберите CSV-файл для импорта данных в систему</p>
+
+    <form th:action="@{/reviews/upload-batch}" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".csv" class="file-input" required>
+      <br>
+      <button type="submit" class="btn-submit">Начать импорт</button>
+    </form>
+  </div>
+
+  <div class="instructions">
+    <h3>📝 Инструкция по заполнению CSV:</h3>
+    <ul>
+      <li>Файл должен быть в кодировке <code>UTF-8</code>.</li>
+      <li>Разделитель — запятая (<code>,</code>).</li>
+      <li>Обязательные заголовки: <code>product_id</code>, <code>user_id</code>, <code>text</code>, <code>rating</code>.</li>
+      <li>Опциональные поля: <code>date</code> (ГГГГ-ММ-ДД), <code>ai_ton</code>, <code>ai_review</code>.</li>
+    </ul>
+  </div>
+
+  <div class="footer-actions">
+    <a th:href="@{/admin/dashboard}" class="back-link">← Вернуться в панель управления</a>
+  </div>
+</div>
+
+</body>
+</html>

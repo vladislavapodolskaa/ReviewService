@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${pageTitle}">Модерация отзывов</title>
+  <style>
+    :root {
+      --bg-cream: #fff1b5;
+      --soft-blue: #c1dbe8;
+      --wine: #501924;
+      --pistachio: #c9daa8;
+      --white: #ffffff;
+      --success: #2d5a27;
+      --error: #8b0000;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #fcfaf2;
+      color: var(--wine);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: var(--bg-cream);
+      padding: 30px;
+      border-radius: 25px;
+      box-shadow: 0 12px 35px rgba(80, 25, 36, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: var(--wine);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      text-decoration: none;
+      color: var(--wine);
+      font-weight: bold;
+      margin-bottom: 25px;
+      padding: 8px 18px;
+      background: var(--soft-blue);
+      border-radius: 50px;
+      transition: 0.3s;
+    }
+
+    .back-link:hover { background: var(--pistachio); }
+
+    /* Сообщения */
+    .success { color: var(--success); border: 2px solid var(--success); background: #f0fff0; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+    .error { color: var(--error); border: 2px solid var(--error); background: #fff0f0; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+
+    /* Карточка отзыва */
+    .review-card {
+      background: var(--white);
+      border: 2px solid var(--soft-blue);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .review-card:hover {
+      border-color: var(--wine);
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .author-info { font-weight: bold; font-size: 1.1em; }
+    .date-info { color: #888; font-size: 0.9em; }
+
+    .rating-badge {
+      background: var(--bg-cream);
+      color: var(--wine);
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-weight: bold;
+      border: 1px solid var(--wine);
+    }
+
+    .review-text {
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-style: italic;
+      color: #333;
+    }
+
+    /* Кнопки действий */
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 25px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+      text-align: center;
+    }
+
+    .btn-approve {
+      background-color: var(--pistachio);
+      color: var(--wine);
+      border: 2px solid var(--wine);
+    }
+
+    .btn-approve:hover {
+      background-color: var(--wine);
+      color: var(--white);
+    }
+
+    .btn-reject {
+      background-color: var(--white);
+      color: var(--error);
+      border: 2px solid var(--error);
+    }
+
+    .btn-reject:hover {
+      background-color: var(--error);
+      color: var(--white);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px;
+      background: white;
+      border-radius: 15px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a th:href="@{/moderator/dashboard}" class="back-link">&#8592; К панели модератора</a>
+
+  <h1>Управление Отзывами</h1>
+  <h2 th:text="${pageTitle}">Ожидают проверки</h2>
+
+  <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+
+  <div th:each="review : ${reviews}" class="review-card">
+    <div class="review-header">
+      <div class="author-info">
+        👤 <span th:text="${review.reviewer.fullname}">Автор</span>
+        <small style="font-weight: normal; color: #666; margin-left: 10px;">(ID: <span th:text="${review.id}"></span>)</small>
+      </div>
+      <div class="rating-badge">
+        ⭐ <span th:text="${review.rating}">5</span> / 5
+      </div>
+    </div>
+
+    <div class="review-text">
+      <p th:text="${review.text}">Текст отзыва будет здесь...</p>
+    </div>
+
+    <div class="review-header" style="border-bottom: none; border-top: 1px solid #eee; padding-top: 10px; margin-top: 0;">
+      <div class="date-info">
+        📅 Дата: <span th:text="${#temporals.format(review.date, 'dd MMMM yyyy')}">2025-12-16</span>
+      </div>
+      <div class="actions">
+        <a th:href="@{/reviews/approve/{id}(id=${review.id})}" class="btn btn-approve">
+          Одобрить
+        </a>
+        <a th:href="@{/reviews/reject/{id}(id=${review.id})}" class="btn btn-reject"
+           onclick="return confirm('Вы уверены, что хотите отклонить этот отзыв?');">
+          Отклонить
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${#lists.isEmpty(reviews)}" class="empty-state">
+    <p style="font-size: 1.2em;">🎉 Все отзывы проверены! <br> Очередь пуста.</p>
+  </div>
+</div>
+
+</body>
+</html>

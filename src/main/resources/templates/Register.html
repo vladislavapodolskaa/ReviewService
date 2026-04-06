@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Регистрация | Создание аккаунта</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+  <style>
+    :root {
+      --bg-cream: #fff1b5;
+      --soft-blue: #c1dbe8;
+      --wine: #501924;
+      --pistachio: #c9daa8;
+      --white: #ffffff;
+      --error: #8b0000;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #fcfaf2;
+      color: var(--wine);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .register-card {
+      width: 100%;
+      max-width: 450px;
+      background-color: var(--bg-cream);
+      padding: 40px;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(80, 25, 36, 0.15);
+      border: 2px solid var(--wine);
+      text-align: center;
+      margin: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 1.6em;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--wine);
+      padding-bottom: 10px;
+      display: inline-block;
+    }
+
+    .error-alert {
+      background-color: #f8d7da;
+      color: var(--error);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      border: 1px solid var(--error);
+      font-size: 0.9em;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 0.95em;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      box-sizing: border-box;
+      border: 2px solid var(--soft-blue);
+      border-radius: 10px;
+      font-size: 1em;
+      outline: none;
+      transition: all 0.3s ease;
+      background-color: var(--white);
+    }
+
+    input:focus {
+      border-color: var(--wine);
+      background-color: #fffef9;
+      box-shadow: 0 0 8px rgba(193, 219, 232, 0.5);
+    }
+
+    .captcha-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--wine);
+      color: var(--bg-cream);
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 5px;
+      box-shadow: 0 4px 10px rgba(80, 25, 36, 0.2);
+    }
+
+    button:hover {
+      background-color: var(--pistachio);
+      color: var(--wine);
+      transform: translateY(-2px);
+    }
+
+    .login-link {
+      margin-top: 25px;
+      font-size: 0.95em;
+      color: #666;
+    }
+
+    .login-link a {
+      color: var(--wine);
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="register-card">
+  <h1>Регистрация</h1>
+
+  <div th:if="${errorMessage}" class="error-alert">
+    <span th:text="${errorMessage}"></span>
+  </div>
+
+  <div th:if="${captchaError}" class="error-alert">
+    <span th:text="${captchaError}"></span>
+  </div>
+
+  <form th:action="@{/register}" th:object="${user}" method="post">
+    <div class="form-group">
+      <label for="login">Логин (имя пользователя)</label>
+      <input type="text" id="login" th:field="*{login}" required placeholder="Придумайте логин">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Пароль</label>
+      <input type="password" id="password" th:field="*{password}" required placeholder="Минимум 6 символов">
+    </div>
+
+    <div class="form-group">
+      <label for="fullname">Ваше полное имя</label>
+      <input type="text" id="fullname" th:field="*{fullname}" required placeholder="Иванов Иван">
+    </div>
+
+    <div class="captcha-container">
+      <div class="g-recaptcha"
+           th:data-sitekey="${@environment.getProperty('google.recaptcha.key.site')}">
+      </div>
+    </div>
+
+    <button type="submit">Создать аккаунт</button>
+  </form>
+
+  <div class="login-link">
+    Уже есть аккаунт? <a th:href="@{/login}">Войти в систему</a>
+  </div>
+</div>
+</body>
+</html>

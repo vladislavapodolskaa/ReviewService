@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель Модератора | Управление контентом</title>
+    <style>
+        :root {
+            --bg-cream: #fff1b5;
+            --soft-blue: #c1dbe8;
+            --wine: #501924;
+            --pistachio: #c9daa8;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #fcfaf2;
+            color: var(--wine);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+
+        .moderator-container {
+            width: 100%;
+            max-width: 650px;
+            background-color: var(--bg-cream);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(80, 25, 36, 0.12);
+            border: 2px solid var(--wine);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--wine);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--wine);
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        /* Кнопки задач */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .task-item {
+            display: block;
+            background-color: var(--white);
+            color: var(--wine);
+            text-decoration: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            border: 2px solid var(--soft-blue);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .task-item:hover {
+            background-color: var(--soft-blue);
+            border-color: var(--wine);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(80, 25, 36, 0.1);
+        }
+
+        .task-item span {
+            display: block;
+            font-size: 0.85em;
+            font-weight: normal;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        /* Футер и выход */
+        .footer-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 25px;
+            border-top: 1px solid rgba(80, 25, 36, 0.2);
+        }
+
+        .back-link {
+            color: var(--wine);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .logout-btn {
+            background-color: var(--pistachio);
+            color: var(--wine);
+            border: 2px solid var(--wine);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: var(--wine);
+            color: var(--white);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="moderator-container">
+    <h1>Панель Модератора</h1>
+
+    <h2>Управление отзывами</h2>
+
+    <div class="task-list">
+        <a th:href="@{/reviews/pending}" class="task-item">
+            Новые отзывы
+            <span>Проверить и одобрить публикации, ожидающие решения</span>
+        </a>
+
+        <a th:href="@{/reviews/all}" class="task-item">
+            Архив отзывов
+            <span>Просмотр всей истории и фильтрация по статусам</span>
+        </a>
+    </div>
+
+    <div class="footer-nav">
+        <a th:href="@{/home}" class="back-link">← На главную</a>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Выйти</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

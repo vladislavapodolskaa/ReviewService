@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог продукции | Главная</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fcfcfc;
+            color: #43302e;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        h1, h2 {
+            color: #43302e;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff1b5;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .search-container {
+            background-color: #c1dbe8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            border: 1px solid #a8c8d8;
+        }
+
+        .search-container input {
+            padding: 10px 15px;
+            border: 2px solid #43302e;
+            border-radius: 5px 0 0 5px;
+            width: 60%;
+            outline: none;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            background-color: #43302e;
+            color: #fff1b5;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .search-container button:hover {
+            opacity: 0.9;
+        }
+
+        .category-tree {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #c1dbe8;
+        }
+
+        .category-tree ul {
+            list-style-type: none;
+            padding-left: 25px;
+        }
+
+        .category-tree li {
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .category-name a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .category-name a:hover {
+            text-decoration: underline;
+        }
+
+        .category-name strong {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-navigation {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background: #43302e;
+            color: #fff1b5;
+            border-radius: 10px;
+        }
+
+        .user-navigation a {
+            color: #c1dbe8;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        .user-navigation a:hover {
+            color: #fff;
+        }
+
+        .btn-logout {
+            background: none;
+            border: 1px solid #c1dbe8;
+            color: #c1dbe8;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Обзор Категорий</h1>
+
+    <div class="search-container">
+        <form th:action="@{/home}" method="get" style="width: 100%; display: flex; justify-content: center; align-items: center;">
+            <input type="text" name="search" th:value="${searchQuery}" placeholder="Что вы ищете?" required>
+            <button type="submit">Найти</button>
+        </form>
+    </div>
+
+    <div class="category-tree">
+        <ul th:if="${!categories.isEmpty()}">
+            <li th:each="rootCategory : ${categories}">
+                <th:block th:if="${rootCategory != null && rootCategory.parent == null}">
+                    <div th:replace="~{::category-list(category=${rootCategory})}"></div>
+                </th:block>
+            </li>
+        </ul>
+        <div th:if="${#lists.isEmpty(categories)}" style="color: gray; text-align: center;">Категории не найдены.</div>
+    </div>
+</div>
+
+<div th:fragment="category-list(category)">
+    <th:block th:if="${category != null}">
+        <div class="category-name">
+            <th:block th:if="${#lists.isEmpty(category.children)}">
+                <a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name}">Категория</a>
+            </th:block>
+            <th:block th:unless="${#lists.isEmpty(category.children)}">
+                <strong th:text="${category.name}">Родительская Категория</strong>
+            </th:block>
+        </div>
+        <ul th:if="${not #lists.isEmpty(category.children)}">
+            <li th:each="child : ${category.children}">
+                <th:block th:if="${child != null}">
+                    <div th:replace="~{::category-list(category=${child})}"></div>
+                </th:block>
+            </li>
+        </ul>
+    </th:block>
+</div>
+
+<div class="container user-navigation">
+    <span sec:authorize="!isAuthenticated()">
+        <a th:href="@{/login}">Войти</a> |
+        <a th:href="@{/register}">Регистрация</a> |
+        <a th:href="@{/reviews/submit-review}">Оставить отзыв</a>
+    </span>
+
+    <span sec:authorize="isAuthenticated()">
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}">Панель администратора</a>
+        <a sec:authorize="hasRole('MODERATOR')" th:href="@{/moderator/dashboard}">Модерация</a>
+        <a sec:authorize="hasRole('REVIEWER')" th:href="@{/user/dashboard}">Кабинет</a>
+        | <a th:href="@{/reviews/submit-review}">Оставить отзыв</a> |
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn-logout">Выйти</button>
+        </form>
+    </span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный Кабинет</title>
+    <style>
+        :root {
+            --bg-cream: #fff1b5;
+            --soft-blue: #c1dbe8;
+            --wine: #501924;
+            --pistachio: #c9daa8;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #fcfaf2;
+            color: var(--wine);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard-card {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--bg-cream);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(80, 25, 36, 0.1);
+        }
+
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            color: var(--wine);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: var(--white);
+            border-radius: 15px;
+            border: 2px dashed var(--soft-blue);
+        }
+
+        .btn-action {
+            display: inline-block;
+            background-color: var(--pistachio);
+            color: var(--wine);
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: 0.3s;
+            border: 1px solid var(--wine);
+        }
+
+        .btn-action:hover {
+            background-color: var(--wine);
+            color: var(--white);
+        }
+
+        /* Таблица отзывов */
+        .table-container {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--soft-blue);
+            color: var(--wine);
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid var(--wine);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-name {
+            font-weight: bold;
+            color: var(--wine);
+        }
+
+        .review-text {
+            font-size: 0.95em;
+            color: #444;
+            max-width: 350px;
+        }
+
+        /* Статусы */
+        .status-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-approved { background-color: #d4edda; color: #155724; }
+        .status-rejected { background-color: #f8d7da; color: #721c24; }
+
+        /* Навигация */
+        .dashboard-footer {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--wine);
+            font-weight: bold;
+        }
+
+        .logout-input {
+            background-color: transparent;
+            border: 1px solid var(--wine);
+            color: var(--wine);
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .logout-input:hover {
+            background-color: var(--wine);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-card">
+    <div class="welcome-header">
+        <h1>Личный Кабинет, <span th:text="${username}">Пользователь</span>!</h1>
+        <p class="subtitle">Здесь вы можете отслеживать историю ваших публикаций и их статус.</p>
+    </div>
+
+    <div th:if="${reviews.isEmpty()}" class="empty-state">
+        <p>Вы пока не оставили ни одного отзыва.</p>
+        <a th:href="@{/submit-review}" class="btn-action">Оставить первый отзыв</a>
+    </div>
+
+    <div th:unless="${reviews.isEmpty()}" class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Продукт</th>
+                <th>Ваш отзыв</th>
+                <th>⭐</th>
+                <th>Дата</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="review : ${reviews}">
+                <td class="product-name" th:text="${review.product?.name}">Название продукта</td>
+                <td class="review-text" th:text="${review.text}">Текст отзыва...</td>
+                <td style="font-weight: bold;" th:text="${review.rating}">5</td>
+                <td style="font-size: 0.9em; color: #666;"
+                    th:text="${#temporals.format(review.date, 'dd.MM.yyyy')}">15.12.2025</td>
+                <td>
+                    <span th:class="'status-pill ' +
+                          (${review.status.name() == 'PENDING'} ? 'status-pending' :
+                          (${review.status.name() == 'APPROVED'} ? 'status-approved' : 'status-rejected'))"
+                          th:text="${review.status}">
+                        PENDING
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="dashboard-footer">
+        <a th:href="@{/home}" class="back-link">&#8592; Вернуться на главную</a>
+
+        <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Выйти из аккаунта" class="logout-input" />
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

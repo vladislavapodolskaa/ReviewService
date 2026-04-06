@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель Администратора</title>
+    <style>
+        :root {
+            --bg-cream: #fff1b5;
+            --soft-blue: #c1dbe8;
+            --wine: #501924;
+            --chocolate: #3e2723;
+            --pistachio: #c9daa8;
+            --white: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #fcfaf2;
+            color: var(--wine);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .admin-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--bg-cream);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(80, 25, 36, 0.15);
+            border: 2px solid var(--wine);
+        }
+        .header-section { text-align: center; margin-bottom: 30px; }
+        h1 {
+            color: var(--chocolate);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 2em;
+            margin-top: 10px;
+        }
+        .user-info {
+            background-color: var(--white);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            border: 1px solid var(--wine);
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .admin-nav {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--chocolate);
+            color: var(--bg-cream);
+            text-decoration: none;
+            padding: 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .nav-item:hover {
+            background-color: var(--soft-blue);
+            color: var(--wine);
+            transform: translateX(10px);
+        }
+        .nav-item::before { content: '⚙️'; margin-right: 15px; font-size: 1.2em; }
+        .nav-item.import-btn { background-color: var(--chocolate); color: var(--bg-cream); }
+        .nav-item.import-btn::before { content: '📦'; }
+        .nav-item.import-btn:hover { background-color: var(--soft-blue); color: var(--wine); }
+        .footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--wine);
+        }
+        .logout-form button {
+            background-color: var(--soft-blue);
+            color: var(--wine);
+            border: 2px solid var(--wine);
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .logout-form button:hover { background-color: var(--pistachio); }
+        .back-link {
+            color: var(--wine);
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 2px solid transparent;
+        }
+        .back-link:hover { border-bottom: 2px solid var(--wine); }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <div class="header-section">
+        <div sec:authorize="isAuthenticated()" class="user-info">
+            Администратор: <strong><span th:text="${#authentication.name}">Admin</span></strong>
+        </div>
+        <h1>Панель Управления</h1>
+    </div>
+    <nav class="admin-nav">
+        <a th:href="@{/admin/users}" class="nav-item">Управление пользователями и ролями</a>
+        <a th:href="@{/admin/categories}" class="nav-item">Управление категориями товаров</a>
+        <a th:href="@{/admin/products}" class="nav-item">Управление продуктами</a>
+        <a th:href="@{/admin/batch}" class="nav-item import-btn">Пакетная загрузка данных (CSV)</a>
+    </nav>
+    <div class="footer-actions">
+        <a th:href="@{/}" class="back-link">← На главную</a>
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <button type="submit">Завершить сеанс</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

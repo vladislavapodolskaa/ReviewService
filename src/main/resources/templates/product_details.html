@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.name}">Название продукта</title>
+    <style>
+        :root {
+            --bg-cream: #fff1b5;
+            --soft-blue: #c1dbe8;
+            --wine: #501924;
+            --pistachio: #c9daa8;
+            --white: #ffffff;
+            --chocolate: #3e2723;
+            --text-muted: #5d4037;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #fdfaf4;
+            color: var(--chocolate);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .product-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--bg-cream);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(62, 39, 35, 0.12);
+            border: 1px solid rgba(80, 25, 36, 0.1);
+        }
+        #div_summery{
+            font-style: italic;
+        }
+        .product-main {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            align-items: flex-start;
+        }
+
+        .product-image-side {
+            flex: 0 0 300px;
+        }
+
+        .product-info-side {
+            flex: 1;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 3px solid var(--chocolate);
+            box-shadow: 0 10px 25px rgba(62, 39, 35, 0.15);
+            background-color: var(--white);
+        }
+
+        @media (max-width: 768px) {
+            .product-main { flex-direction: column; }
+            .product-image-side { width: 100%; }
+        }
+
+        h1 {
+            font-size: 2.2em;
+            color: var(--wine);
+            margin: 0 0 10px 0;
+            border-bottom: 3px solid var(--wine);
+            padding-bottom: 10px;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background: var(--chocolate);
+            color: var(--bg-cream);
+            padding: 6px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .category-tag:hover { background: var(--wine); }
+
+        .description-box {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--chocolate);
+            color: var(--chocolate);
+        }
+
+        .rating-summary {
+            font-size: 1.1em;
+            padding: 12px 20px;
+            background: var(--pistachio);
+            border-radius: 12px;
+            display: inline-block;
+            border: 2px solid var(--chocolate);
+            color: var(--chocolate);
+            font-weight: bold;
+        }
+
+        .rating-stars { color: #bf9000; font-size: 1.2em; }
+
+        .ai-card {
+            background: linear-gradient(135deg, var(--white) 0%, #f3e5f5 100%);
+            border: 2px solid var(--wine);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 8px 20px rgba(80, 25, 36, 0.08);
+        }
+
+        .ai-card h3 { margin-top: 0; color: var(--wine); font-family: 'Georgia', serif; }
+
+        .review-card {
+            background: var(--white);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 18px;
+            border: 1px solid var(--soft-blue);
+        }
+
+        .btn-review {
+            display: inline-block;
+            background-color: var(--wine);
+            color: var(--bg-cream);
+            padding: 14px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-review:hover { background-color: var(--chocolate); transform: translateY(-2px); }
+
+        .nav-links a {
+            color: var(--chocolate);
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 2px solid var(--pistachio);
+        }
+    </style>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            let element = document.getElementById('div_summery');
+            fetch('/product/summery/[[${product.id}]]')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log(data);
+                    const myDiv = document.getElementById('div_summery');
+                    myDiv.textContent = data;
+
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+
+        });
+
+    </script>
+</head>
+<body>
+
+<div class="product-container">
+
+    <div class="product-main">
+        <div class="product-image-side">
+            <img th:src="${product.imageUrl != null ? product.imageUrl : '/images/no-photo.jpg'}"
+                 th:alt="${product.name}"
+                 class="product-img">
+        </div>
+
+        <div class="product-info-side">
+            <h1 th:text="${product.name}">Название продукта</h1>
+
+            <a th:if="${product.category != null}"
+               th:href="@{/category/{id}(id=${product.category.id})}"
+               class="category-tag"
+               th:text="${product.category.name}">Категория</a>
+
+            <div class="description-box">
+                <strong>О продукте:</strong><br>
+                <span th:text="${product.description}">Описание...</span>
+            </div>
+
+            <div class="rating-summary">
+                <span th:if="${product.averageRating != null}">
+                    Общий рейтинг: <span class="rating-stars" th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)} + ' / 5.0'">4.5 / 5.0</span>
+                </span>
+                <span th:unless="${product.averageRating != null}">Мнений пока нет</span>
+            </div>
+        </div>
+    </div>
+
+    <div  class="ai-card"><!--th:if="${aiSummary != null && aiSummary.length() > 0}" class="ai-card">-->
+        <h3>✨ Резюме от нашего ИИ-ассистента</h3>
+        <div id="div_summery">Загрузка...</div>
+    </div>
+
+    <div sec:authorize="isAuthenticated()" style="margin: 35px 0; text-align: center;">
+        <a th:href="@{/reviews/submit-review}" class="btn-review">Написать свой отзыв</a>
+    </div>
+
+    <h2 style="color: var(--chocolate); border-bottom: 1px solid var(--soft-blue); padding-bottom: 10px;">Отзывы сообщества</h2>
+
+    <div th:if="${reviews.isEmpty()}" style="padding: 20px; text-align: center; color: var(--text-muted);">
+        <p>Здесь пока пусто. Поделитесь своим опытом первым!</p>
+    </div>
+
+    <div th:unless="${reviews.isEmpty()}">
+        <div th:each="review : ${reviews}" class="review-card">
+            <div class="review-meta" style="display: flex; justify-content: space-between; border-bottom: 1px solid #f0e6e6; padding-bottom: 10px;">
+                <span>
+                    <strong th:text="${review.reviewer?.fullname}">Аноним</strong>
+                    <span style="margin: 0 10px; opacity: 0.3;">|</span>
+                    Оценка: <span class="rating-stars" th:text="${review.rating}">5</span>
+                </span>
+
+                <span th:if="${review.ai_ton != null}">
+                    <span th:if="${review.ai_ton.name() == 'POSITIVE'}" style="color: #2e7d32;">● Позитивно</span>
+                    <span th:if="${review.ai_ton.name() == 'NEGATIVE'}" style="color: #c62828;">● Негативно</span>
+                    <span th:if="${review.ai_ton.name() == 'NEUTRAL'}" style="color: #6d4c41;">● Нейтрально</span>
+                </span>
+            </div>
+            <p th:text="${review.text}" style="margin: 15px 0; line-height: 1.5;"></p>
+        </div>
+    </div>
+
+    <div class="nav-links" style="margin-top: 50px;">
+        <a th:href="@{/}">← На главную страницу</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+
+
+    <div th:if="${aiSummary != null && aiSummary.length() > 0}" class="ai-card">
+        <h3>✨ Резюме от нашего ИИ-ассистента</h3>
+        <p style="font-style: italic;" th:text="${aiSummary}"></p>
+    </div>
+

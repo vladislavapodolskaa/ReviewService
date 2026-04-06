@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление Продуктами | Admin</title>
+    <style>
+        :root {
+            --bg-cream: #fff1b5;
+            --soft-blue: #c1dbe8;
+            --wine: #501924;
+            --pistachio: #c9daa8;
+            --white: #ffffff;
+            --chocolate: #3e2723;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #fdfaf4;
+            color: var(--chocolate);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .admin-card {
+            max-width: 1100px;
+            margin: 0 auto;
+            background-color: var(--bg-cream);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(62, 39, 35, 0.12);
+            border: 2px solid var(--chocolate);
+        }
+
+        h1, h2 {
+            color: var(--wine);
+            border-left: 5px solid var(--chocolate);
+            padding-left: 15px;
+            text-transform: uppercase;
+        }
+
+        .form-container {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid var(--soft-blue);
+            margin-bottom: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label { font-weight: bold; margin-bottom: 5px; color: var(--chocolate); }
+
+        input[type="text"], select, textarea {
+            padding: 12px;
+            border: 2px solid var(--soft-blue);
+            border-radius: 10px;
+            font-size: 1em;
+            outline-color: var(--wine);
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--chocolate); }
+
+        .image-preview-box {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px dashed var(--chocolate);
+        }
+
+        #preview-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--chocolate);
+            display: none;
+        }
+
+        button[type="submit"] {
+            background-color: var(--pistachio);
+            color: var(--chocolate);
+            border: 2px solid var(--chocolate);
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            grid-column: span 2;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--wine);
+            color: var(--bg-cream);
+        }
+
+        /* Таблица */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+
+        th {
+            background-color: var(--chocolate);
+            color: var(--bg-cream);
+            padding: 15px;
+            text-align: left;
+        }
+
+        td {
+            background-color: var(--white);
+            padding: 15px;
+            border-bottom: 1px solid var(--soft-blue);
+        }
+
+        .thumb-admin {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .action-link {
+            text-decoration: none;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+        }
+
+        .edit-link { color: #d4a017; border: 1px solid #d4a017; }
+        .edit-link:hover { background: #d4a017; color: white; }
+
+        .delete-link { color: var(--wine); border: 1px solid var(--wine); }
+        .delete-link:hover { background: var(--wine); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="admin-card">
+    <h1>Управление Продуктами</h1>
+
+    <div class="form-container">
+        <h2>Карточка Продукта</h2>
+        <form th:action="@{/admin/products/save}" method="post" th:object="${product}">
+            <input type="hidden" th:field="*{id}" th:if="${product.id != null}">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Название:</label>
+                    <input type="text" id="name" th:field="*{name}" required placeholder="Напр: Золотое кольцо">
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Категория:</label>
+                    <select id="category" th:field="*{category}" required>
+                        <option value="">-- Выбрать --</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="description">Описание:</label>
+                    <textarea id="description" th:field="*{description}" rows="2"></textarea>
+                </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="imageUrl">Путь к фото (в папке /images/):</label>
+                    <input type="text" id="imageUrl" th:field="*{imageUrl}"
+                           placeholder="/images/ring.jpg" oninput="previewImage(this.value)">
+                </div>
+
+                <div class="image-preview-box">
+                    <img id="preview-img" src="" alt="Превью">
+                    <span id="preview-text" style="font-size: 0.9em; color: #888;">Введите путь к фото, чтобы увидеть превью</span>
+                </div>
+
+                <button type="submit" th:text="*{id} == null ? '➕ Создать новый продукт' : '💾 Сохранить изменения'"></button>
+            </div>
+        </form>
+    </div>
+
+    <h2>Список товаров</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Фото</th>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${products}">
+            <td>
+                <img th:src="${p.imageUrl != null ? p.imageUrl : '/images/no-photo.jpg'}" class="thumb-admin">
+            </td>
+            <td th:text="${p.name}" style="font-weight: bold;"></td>
+            <td>
+                <span th:text="${p.category.name}" style="color: var(--wine); font-weight: 600;"></span>
+            </td>
+            <td>
+                <a th:href="@{/admin/products/edit/{id}(id=${p.id})}" class="action-link edit-link">Правка</a>
+                <a th:href="@{/admin/products/delete/{id}(id=${p.id})}" class="action-link delete-link"
+                   onclick="return confirm('Удалить?')">Удалить</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/admin/dashboard}" style="display:block; margin-top:30px; color: var(--chocolate); text-decoration:none; font-weight:bold;">← Назад в панель</a>
+</div>
+
+<script>
+    function previewImage(url) {
+        const img = document.getElementById('preview-img');
+        const text = document.getElementById('preview-text');
+        if (url && url.length > 5) {
+            img.src = url;
+            img.style.display = 'block';
+            text.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            text.style.display = 'block';
+        }
+    }
+    window.onload = function() {
+        const url = document.getElementById('imageUrl').value;
+        if(url) previewImage(url);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+spring.application.name=ReviewAnalysisSystem
+
+# Database Configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/ReviewService
+spring.datasource.username=YOUR_DB_USERNAME
+spring.datasource.password=YOUR_DB_PASSWORD
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JPA / Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.jdbc.batch_size=50
+
+# GigaChat AI Configuration
+# Get your Auth Data (Base64) at https://developers.sber.ru/
+ai.api.key=YOUR_GIGACHAT_AUTH_DATA
+ai.api.url=https://gigachat.devices.sberbank.ru/api/v1/chat/completions
+ai.token.uri=https://ngw.devices.sberbank.ru:9443/api/v2/oauth
+ai.scope=GIGACHAT_API_PERS
+ai.model=GigaChat
+
+# Google reCAPTCHA
+google.recaptcha.key.site=YOUR_RECAPTCHA_SITE_KEY
+google.recaptcha.key.secret=YOUR_RECAPTCHA_SECRET_KEY

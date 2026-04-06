@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление Пользователями</title>
+    <style>
+        :root {
+            --bg-cream: #fff1b5;
+            --soft-blue: #c1dbe8;
+            --wine: #501924;
+            --pistachio: #c9daa8;
+            --white: #ffffff;
+            --success: #2d5a27;
+            --error: #8b0000;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #fcfaf2;
+            color: var(--wine);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .admin-card {
+            max-width: 1100px;
+            margin: 0 auto;
+            background-color: var(--bg-cream);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(80, 25, 36, 0.1);
+        }
+
+        h1, h2 {
+            border-left: 5px solid var(--wine);
+            padding-left: 15px;
+            text-transform: uppercase;
+            color: var(--wine);
+        }
+
+        /* Сообщения */
+        .success { color: var(--success); border: 2px solid var(--success); background-color: #f0fff0; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+        .error { color: var(--error); border: 2px solid var(--error); background-color: #fff0f0; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+
+        /* Форма регистрации */
+        .registration-box {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid var(--soft-blue);
+            margin-bottom: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+
+        input, select {
+            padding: 10px;
+            border: 2px solid var(--soft-blue);
+            border-radius: 6px;
+            outline-color: var(--wine);
+        }
+
+        .btn-create {
+            background-color: var(--wine);
+            color: var(--bg-cream);
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-create:hover { background-color: var(--pistachio); color: var(--wine); }
+
+        /* Таблица */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { background-color: var(--wine); color: var(--bg-cream); padding: 12px; text-align: left; }
+        td { background-color: var(--white); padding: 12px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+
+        /* Кнопки ролей */
+        .button-container {
+            display: flex;
+            gap: 5px;
+            width: 220px;
+        }
+
+        .role-button {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid var(--wine);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+            border-radius: 4px;
+            transition: 0.3s;
+            background: var(--white);
+            color: var(--wine);
+        }
+
+        /* Цвета кнопок при наведении */
+        .btn-admin:hover { background-color: var(--wine); color: white; }
+        .btn-moderator:hover { background-color: #fceaa2; color: white; border-color: #fceaa2; }
+        .btn-reviewer:hover { background-color: var(--pistachio); border-color: var(--pistachio); }
+
+        .current-user-tag {
+            font-style: italic;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .footer-nav { margin-top: 30px; display: flex; justify-content: space-between; }
+        .back-link { color: var(--wine); text-decoration: none; font-weight: bold; }
+        .logout-btn { background: none; border: none; color: var(--error); cursor: pointer; font-weight: bold; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="admin-card">
+    <h1>Управление Пользователями</h1>
+
+    <div th:if="${adminSuccess}" class="success" th:text="${adminSuccess}"></div>
+    <div th:if="${adminError}" class="error" th:text="${adminError}"></div>
+
+    <div class="registration-box">
+        <h2>Регистрация сотрудника</h2>
+        <form th:action="@{/admin/users/register}" method="post" class="form-grid">
+            <div class="form-group">
+                <label for="newLogin">Логин:</label>
+                <input type="text" id="newLogin" name="login" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">Пароль:</label>
+                <input type="password" id="newPassword" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="newFullname">Имя:</label>
+                <input type="text" id="newFullname" name="fullname" required>
+            </div>
+            <div class="form-group">
+                <label for="newRole">Роль:</label>
+                <select id="newRole" name="role" required>
+                    <option value="MODERATOR">Модератор</option>
+                    <option value="ADMIN">Администратор</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-create">Создать</button>
+        </form>
+    </div>
+
+    <h2>Список пользователей</h2>
+    <table>
+        <thead>
+        <tr>
+            <th style="border-radius: 8px 0 0 0;">ID</th>
+            <th>Логин / Имя</th>
+            <th>Текущая Роль</th>
+            <th style="border-radius: 0 8px 0 0;">Изменить роль</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}" style="color: #777;"></td>
+            <td>
+                <strong th:text="${user.login}"></strong><br>
+                <small th:text="${user.fullname}"></small>
+            </td>
+            <td>
+                <span th:text="${user.role.name()}"
+                      th:style="'background-color: ' +
+                      (${user.role.name() == 'ADMIN'} ? 'var(--soft-blue)' :
+                      (${user.role.name() == 'MODERATOR'} ? 'var(--bg-cream)' : 'var(--pistachio)')) +
+                      '; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold;'">
+                </span>
+            </td>
+            <td>
+                <div th:if="${currentUserName ne user.login}" class="button-container">
+                    <a th:if="${user.role.name() != 'ADMIN'}" th:href="@{'/admin/users/change-role/' + ${user.id} + '/ADMIN'}">
+                        <button class="role-button btn-admin">ADMIN</button>
+                    </a>
+                    <a th:if="${user.role.name() != 'MODERATOR'}" th:href="@{'/admin/users/change-role/' + ${user.id} + '/MODERATOR'}">
+                        <button class="role-button btn-moderator">MODER</button>
+                    </a>
+                    <a th:if="${user.role.name() != 'REVIEWER'}" th:href="@{'/admin/users/change-role/' + ${user.id} + '/REVIEWER'}">
+                        <button class="role-button btn-reviewer">USER</button>
+                    </a>
+                </div>
+                <div th:unless="${currentUserName ne user.login}" class="current-user-tag">
+                    (Это вы)
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="footer-nav">
+        <a th:href="@{/admin/dashboard}" class="back-link">← В панель управления</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Выйти из системы</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

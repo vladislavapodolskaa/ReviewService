@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Оставить отзыв | Ваше мнение важно</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+  <style>
+    :root {
+      --bg-cream: #fff1b5;
+      --soft-blue: #c1dbe8;
+      --wine: #501924;
+      --pistachio: #c9daa8;
+      --white: #ffffff;
+      --chocolate: #3e2723;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #fdfaf4;
+      color: var(--chocolate);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .form-card {
+      width: 100%;
+      max-width: 600px;
+      background-color: var(--bg-cream);
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 0 15px 40px rgba(62, 39, 35, 0.15);
+      border: 2px solid var(--chocolate);
+    }
+
+    h1 {
+      color: var(--wine);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--chocolate);
+      margin-bottom: 30px;
+      font-style: italic;
+      opacity: 0.8;
+    }
+
+    /* Блок ошибки капчи */
+    .captcha-error {
+      background-color: #f8d7da;
+      color: var(--wine);
+      border: 1px solid var(--wine);
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--chocolate);
+    }
+
+    /* Стилизация полей ввода */
+    select, input[type="number"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--soft-blue);
+      border-radius: 12px;
+      font-size: 1em;
+      font-family: inherit;
+      box-sizing: border-box;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--wine);
+      background-color: #fffef9;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* 2. СТИЛИ ДЛЯ ЦЕНТРИРОВАНИЯ КАПЧИ */
+    .captcha-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    /* Кнопка отправки */
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background-color: var(--pistachio);
+      color: var(--chocolate);
+      border: 2px solid var(--chocolate);
+      border-radius: 12px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background-color: var(--wine);
+      color: var(--bg-cream);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(80, 25, 36, 0.2);
+    }
+
+    .back-nav {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .back-nav a {
+      color: var(--chocolate);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9em;
+      border-bottom: 2px solid var(--soft-blue);
+      transition: 0.2s;
+    }
+
+    .back-nav a:hover {
+      border-bottom-color: var(--wine);
+      color: var(--wine);
+    }
+
+    .rating-info {
+      font-size: 0.8em;
+      color: #888;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-card">
+  <h1>Оставить отзыв</h1>
+  <p class="subtitle">Пожалуйста, поделитесь своим мнением о продукте — это поможет другим пользователям.</p>
+
+  <div th:if="${captchaError}" class="captcha-error">
+    <p th:text="${captchaError}"></p>
+  </div>
+
+  <form th:action="@{/reviews/submit-review}" th:object="${review}" method="post">
+
+    <div class="form-group">
+      <label for="product">Выберите продукт</label>
+      <select id="product" th:field="*{product}" required>
+        <option value="">-- Нажмите, чтобы выбрать --</option>
+        <option th:each="product : ${products}"
+                th:value="${product.id}"
+                th:text="${product.name}">
+          Название продукта
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="rating">Ваша оценка (от 1 до 5 ⭐)</label>
+      <input type="number" id="rating" th:field="*{rating}"
+             min="1" max="5" required placeholder="5"/>
+      <div class="rating-info">1 — плохо, 5 — великолепно</div>
+    </div>
+
+    <div class="form-group">
+      <label for="text">Ваши впечатления</label>
+      <textarea id="text" th:field="*{text}"
+                placeholder="Расскажите подробнее о качестве, плюсах и минусах..." required></textarea>
+    </div>
+
+    <div class="captcha-wrapper">
+      <div class="g-recaptcha"
+           th:data-sitekey="${@environment.getProperty('google.recaptcha.key.site')}">
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Отправить на модерацию</button>
+  </form>
+
+  <div class="back-nav">
+    <a th:href="@{/}">← Вернуться на главную страницу</a>
+  </div>
+</div>
+
+</body>
+</html>

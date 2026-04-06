@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Все отзывы | Модерация</title>
+  <style>
+    :root {
+      --bg-cream: #fff1b5;
+      --soft-blue: #c1dbe8;
+      --wine: #501924;
+      --pistachio: #c9daa8;
+      --white: #ffffff;
+      --pending: #cc8400;
+      --approved: #2d5a27;
+      --rejected: #8b0000;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #fcfaf2;
+      color: var(--wine);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: var(--bg-cream);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(80, 25, 36, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-bottom: 2px solid var(--wine);
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+
+    .back-link {
+      display: inline-block;
+      text-decoration: none;
+      color: var(--wine);
+      font-weight: bold;
+      margin-bottom: 20px;
+      padding: 5px 15px;
+      background: var(--soft-blue);
+      border-radius: 50px;
+      transition: 0.3s;
+    }
+
+    .back-link:hover {
+      background: var(--pistachio);
+    }
+
+    /* Фильтр */
+    .filter-section {
+      background: var(--white);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      border: 2px solid var(--wine);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .filter-section label {
+      font-weight: bold;
+      margin-right: 15px;
+    }
+
+    .filter-section select {
+      padding: 8px 15px;
+      border-radius: 6px;
+      border: 2px solid var(--soft-blue);
+      background: white;
+      color: var(--wine);
+      font-weight: bold;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Таблица */
+    .table-wrapper {
+      overflow-x: auto;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: var(--wine);
+      color: var(--bg-cream);
+      padding: 15px;
+      text-align: left;
+      font-size: 0.9em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      font-size: 0.95em;
+      vertical-align: top;
+    }
+
+    tr:hover td {
+      background-color: #fffef0;
+    }
+
+    /* Статусы */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 0.8em;
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .status-pending { background-color: #fff3cd; color: var(--pending); border: 1px solid var(--pending); }
+    .status-approved { background-color: #d4edda; color: var(--approved); border: 1px solid var(--approved); }
+    .status-rejected { background-color: #f8d7da; color: var(--rejected); border: 1px solid var(--rejected); }
+
+    .rating-star {
+      color: #d4a017;
+      font-weight: bold;
+    }
+
+    .review-text {
+      max-width: 300px;
+      word-wrap: break-word;
+      font-style: italic;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a th:href="@{/moderator/dashboard}" class="back-link">&#8592; К панели модератора</a>
+
+  <h1>Архив всех отзывов</h1>
+
+  <div class="filter-section">
+    <form th:action="@{/reviews/all}" method="get">
+      <label for="statusFilter">Статус:</label>
+      <select id="statusFilter" name="status" onchange="this.form.submit()">
+        <option value="" th:selected="${currentStatus == null}">— Показать все —</option>
+        <option th:each="s : ${allStatuses}"
+                th:value="${s}"
+                th:text="${s.name()}"
+                th:selected="${s == currentStatus}">
+          PENDING
+        </option>
+      </select>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+      <tr>
+        <th style="border-radius: 8px 0 0 0;">ID</th>
+        <th>Продукт</th>
+        <th>Автор</th>
+        <th>Текст отзыва</th>
+        <th>⭐</th>
+        <th>Дата</th>
+        <th style="border-radius: 0 8px 0 0;">Статус</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="review : ${reviews}">
+        <td th:text="${review.id}" style="color: #999; font-weight: bold;"></td>
+        <td>
+          <small>ID: </small><span th:text="${review.product?.id}"></span>
+        </td>
+        <td th:text="${review.reviewer?.fullname}" style="font-weight: bold;"></td>
+        <td class="review-text" th:text="${review.text}"></td>
+        <td>
+          <span class="rating-star" th:text="${review.rating}"></span>
+        </td>
+        <td>
+          <small th:text="${#temporals.format(review.date, 'dd.MM.yyyy HH:mm')} ?: ${review.date}"></small>
+        </td>
+        <td>
+                    <span th:class="'status-badge ' +
+                                (${review.status.name() == 'PENDING'} ? 'status-pending' :
+                                (${review.status.name() == 'APPROVED'} ? 'status-approved' : 'status-rejected'))"
+                          th:text="${review.status}">
+                        PENDING
+                    </span>
+        </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(reviews)}">
+        <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+          Отзывы с таким статусом не найдены.
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
